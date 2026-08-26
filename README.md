@@ -1,98 +1,77 @@
 # LABPBR Glossy Pack Generator
 
-
-> Convierte texturas, resource packs ZIP y JARs de Minecraft/mods en **resource packs Glossy planos**, sin enviar los archivos a un servidor.
-
+> Crea localmente **resource packs Glossy planos** para Java Edition y **resource packs PBR para Bedrock**. Los archivos no se envían a un servidor y la herramienta no modifica ni incluye APKs.
 
 **[Abrir la versión publicada](https://dubicrack-yt.github.io/labpbr-generator/)**
 
+LABPBR Glossy Pack Generator mantiene los assets originales y genera reflejos lisos sin altura, parallax, bump falso ni emisión accidental. El preview permanente **Antes / Después** usa las capturas de referencia para mostrar el acabado antes de exportar.
 
-LABPBR Glossy Pack Generator es una herramienta local de navegador para crear acabados reflectantes, lisos y sin volumen heredado. No tiene modos PBR normales ni familias de material. Parte de una receta **Glossy plano recomendada** y permite ajustar sus canales cuando se necesita una variante controlada.
+## Presets Glossy
 
+La receta se selecciona con presets seguros. Todos mantienen normal neutra 128/128/255/255 y no introducen profundidad.
+
+| Preset | Uso | Suavidad / F0 / Porosidad / Emisión |
+| --- | --- | --- |
+| **Espejo plano** | Recomendado; reflejo máximo. | 255 / 255 / 0 / 0 |
+| **Pulido** | Reflejo controlado, sin volumen. | 220 / 200 / 30 / 0 |
+| **Satinado** | Brillo más suave, sin relieve. | 160 / 150 / 80 / 0 |
 
 ## Salidas
 
+| Destino | Archivo generado | Mapas | Alcance |
+| --- | --- | --- | --- |
+| **Java 1.16+** | Un ZIP | _n y _s LABPBR | Bloques, ítems y entidades de packs, ZIP y JAR. |
+| **Bedrock PBR** | Un MCPACK | Color, _normal, _mer y texture set JSON | Bedrock RTX y Vibrant Visuals. |
 
-| Entrada | Operación múltiple | Salida |
-| --- | --- | --- |
-| Texturas PNG, JPG o WebP | Se pueden seleccionar varias a la vez. | Un resource pack por cada versión elegida, con todas las parejas `_n` y `_s`. |
-| Resource packs `.zip` | Se pueden seleccionar varios a la vez. | Un resource pack Glossy por cada combinación de ZIP y versión; mantiene el contenido original y añade los mapas derivados. |
-| JARs de mod o de Minecraft | Se pueden seleccionar varios a la vez. | Un resource pack ZIP por cada combinación de JAR y versión. El JAR fuente no se modifica ni se vuelve a empaquetar como ejecutable. |
+### Java 1.16+: un ZIP universal
 
+El selector de versiones fue retirado. La salida Java usa pack_format 5 para priorizar la apertura desde 1.16 en adelante. Java Edition no permite declarar en un solo pack.mcmeta todos los formatos históricos; los lanzamientos recientes pueden mostrar su aviso normal de compatibilidad, pero no se generan copias por versión.
 
-El preset inicial produce `_n = 128,128,255,255` y `_s = 255,255,0,255`: normal neutra, suavidad y F0 máximos, porosidad nula y emisión apagada. La sección **Receta Glossy** permite ajustar suavidad (R), F0 (G), porosidad (B) y emisión (alfa); esos controles nunca introducen relieve, altura ni parallax.
+La salida procesa PNG de textures/block, textures/blocks, textures/item, textures/items y textures/entity. Conserva animaciones y deja intactos GUI, fuentes, pantallas, mapas, pinturas y sonidos.
 
+### Bedrock: RTX y Vibrant Visuals
 
-## Compatibilidad por versión
+La opción Bedrock crea un **resource pack**, no un APK. Cada textura genera color PNG, normal plana y MER, donde RGB es metalness, emissive y roughness. El manifest establece min_engine_version 1.21.120 y las capabilities pbr y raytraced, conforme a la documentación de Microsoft para Vibrant Visuals y RTX. [1] [2]
 
+> **Límite de plataformas:** RTX requiere hardware compatible. Vibrant Visuals es la alternativa PBR multiplataforma. La correspondencia con texturas vanilla depende de que las rutas y nombres del origen coincidan con los identificadores Bedrock; prueba el MCPACK en el juego antes de usarlo en un mundo importante.
 
-La aplicación permite marcar varios destinos desde **Minecraft 1.16 hasta 26.2** y crea un ZIP independiente por versión. La metadata usa `pack_format` hasta 1.21.8 y, desde 1.21.9, los campos modernos `min_format` y `max_format`. [1]
+## Uso
 
+1. Selecciona uno o más PNG, JPG o WebP, o varios ZIP/JAR.
+2. Elige Espejo plano, Pulido o Satinado.
+3. Elige Java 1.16+ o Bedrock PBR.
+4. Revisa el preview Antes / Después, genera y descarga el ZIP o MCPACK local.
 
-| Minecraft Java | Formato de resource pack |
-| --- | --- |
-| 1.16 – 1.16.1 | 5 |
-| 1.16.2 – 1.16.5 | 6 |
-| 1.17 – 1.17.1 | 7 |
-| 1.18 – 1.18.2 | 8 |
-| 1.19 – 1.19.2 | 9 |
-| 1.19.3 / 1.19.4 | 12 / 13 |
-| 1.20 – 1.20.1 / 1.20.2 | 15 / 18 |
-| 1.20.3 – 1.20.4 / 1.20.5 – 1.20.6 | 22 / 32 |
-| 1.21 – 1.21.1 / 1.21.2 – 1.21.3 | 34 / 42 |
-| 1.21.4 / 1.21.5 / 1.21.6 | 46 / 55 / 63 |
-| 1.21.7 – 1.21.8 | 64 |
-| 1.21.9 – 1.21.10 / 1.21.11 | 69.0 / 75.0 |
-| 26.1 – 26.1.2 / 26.2 | 84.0 / 88.0 |
-
-
-## Preview antes / después
-
-
-El panel derecho incorpora un preview permanente con las capturas de referencia aportadas. Su divisor vertical permite revelar **Antes** y **Después · Glossy** sin obligarte a cargar una textura previamente. Las cargas de texturas, ZIP y JAR siguen disponibles en el panel izquierdo y todas las salidas continúan siendo resource packs ZIP.
-
-
-## Rutas que procesa
-
-
-En ZIP/JAR, el conversor solo genera mapas para PNG ubicados en rutas de `textures/block`, `textures/blocks`, `textures/item`, `textures/items` o `textures/entity`. Conserva los `.mcmeta` de animación en los mapas derivados y no vuelve a procesar archivos LABPBR existentes.
-
-
-> Las interfaces, fuentes, pantallas, mapas, pinturas y sonidos quedan fuera de la conversión. Un ZIP los conserva sin cambios. La salida que proviene de un JAR solo incluye los assets necesarios para funcionar como resource pack y nunca incluye clases, manifiestos ni firmas del archivo original.
-
-
-## Shader recomendado
-
-
-Para inspeccionar el acabado Glossy se recomienda [Complementary Reimagined](https://modrinth.com/project/HVnmMxH1), disponible también en [CurseForge](https://www.curseforge.com/minecraft/shaders/complementary-reimagined). El shader es opcional: la generación de mapas y de resource packs no depende de él.
-
+Un JAR fuente **nunca se modifica ni se vuelve a empaquetar como ejecutable**. Para Java se extraen solo assets convertibles; para Bedrock se produce un MCPACK independiente. El límite local es de **300 MB por archivo** y **20 000 texturas convertibles**.
 
 ## Privacidad
 
+Canvas 2D y la compresión ZIP se ejecutan en el navegador. Ninguna textura, pack o JAR se transmite a una API; las descargas se crean localmente.
 
-Canvas 2D y compresión ZIP se ejecutan directamente en tu navegador. Ninguna textura, pack o JAR se envía a una API ni se almacena en un servidor. Las descargas se crean como ZIP locales.
+## Inspector recomendado
 
+Para Java, usa [Complementary Reimagined][5], disponible en [Modrinth][5] y [CurseForge][6]. Para Bedrock, importa el MCPACK y habilita **Vibrant Visuals** o **ray tracing** en un dispositivo compatible.
 
 ## Desarrollo local
 
-
-```bash
+~~~bash
 pnpm install
 pnpm dev
-```
+pnpm check
+pnpm build
+~~~
 
-
-La aplicación usa React, TypeScript, Vite y [JSZip](https://github.com/Stuk/jszip). `pnpm build` genera el bundle de producción y `scripts/export-github-pages.mjs` prepara los archivos estáticos de GitHub Pages.
-
+La aplicación usa React, TypeScript, Vite y [JSZip](https://github.com/Stuk/jszip). El script scripts/export-github-pages.mjs prepara los archivos estáticos de GitHub Pages.
 
 ## Licencia
 
-
 Este proyecto se distribuye bajo la [licencia MIT](LICENSE).
-
 
 ## Referencias
 
-
-[1]: https://minecraft.wiki/w/Pack_format "Minecraft Wiki — Pack format"
-
+[1]: https://learn.microsoft.com/en-us/minecraft/creator/documents/vibrantvisuals/vvresourcepacks?view=minecraft-bedrock-stable "Microsoft Learn — Vibrant Visuals Resource Packs"
+[2]: https://learn.microsoft.com/en-us/minecraft/creator/reference/content/texturesetsreference/texturesetsconcepts/texturesetsintroduction?view=minecraft-bedrock-stable "Microsoft Learn — Texture Set JSON"
+[3]: https://learn.microsoft.com/en-us/minecraft/creator/documents/vibrantvisuals/pbroverview?view=minecraft-bedrock-stable "Microsoft Learn — Overview of Physically Based Rendering"
+[4]: https://minecraft.wiki/w/Pack_format "Minecraft Wiki — Pack format"
+[5]: https://modrinth.com/project/HVnmMxH1 "Complementary Reimagined — Modrinth"
+[6]: https://www.curseforge.com/minecraft/shaders/complementary-reimagined "Complementary Reimagined — CurseForge"
