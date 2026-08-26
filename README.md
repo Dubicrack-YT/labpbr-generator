@@ -1,59 +1,55 @@
-# LABPBR Texture Generator
+# LABPBR Glossy Pack Generator
 
-> Genera mapas LABPBR o convierte resource packs y JARs a un acabado **Glossy plano**, sin enviar archivos a un servidor.
+> Convierte texturas, resource packs ZIP y JARs de Minecraft/mods en **resource packs Glossy planos**, sin enviar los archivos a un servidor.
 
 **[Abrir la versión publicada](https://dubicrack-yt.github.io/labpbr-generator/)**
 
-LABPBR Texture Generator es una herramienta de navegador para creadores de resource packs de Minecraft. Puede trabajar con una textura PNG, JPG o WebP individual, o convertir de forma masiva un resource pack `.zip`, un JAR de mod o un JAR de cliente Minecraft. El procesamiento ocurre en el propio navegador; no necesita API, claves ni backend.
+LABPBR Glossy Pack Generator es una herramienta local de navegador para crear acabados reflectantes, lisos y sin volumen heredado. No tiene modos PBR normales, familias de material ni controles que cambien la interpretación visual: utiliza una única receta Glossy estable para cada textura procesada.
 
-## Qué genera
+## Salidas
 
-| Flujo | Salida | Alcance |
+| Entrada | Operación múltiple | Salida |
 | --- | --- | --- |
-| **Textura individual** | `<nombre>_n.png` y `<nombre>_s.png` | Una textura PNG, JPG o WebP para edición material puntual. |
-| **Resource pack ZIP** | `<pack>_glossy.zip` | Conserva el pack original y añade pares Glossy para PNG de bloques, ítems y entidades. |
-| **JAR de mod o Minecraft** | `<archivo>_glossy_overlay.zip` | Crea un resource-pack overlay; el JAR original no se modifica ni se vuelve a firmar. |
+| Texturas PNG, JPG o WebP | Se pueden seleccionar varias a la vez. | Un único `texturas_glossy_resource_pack.zip` que incluye todas las parejas `_n` y `_s`. |
+| Resource packs `.zip` | Se pueden seleccionar varios a la vez. | Un resource pack Glossy por cada ZIP; mantiene el contenido original y añade los mapas derivados. |
+| JARs de mod o de Minecraft | Se pueden seleccionar varios a la vez. | Un resource pack ZIP por cada JAR. El JAR fuente no se modifica ni se vuelve a empaquetar como ejecutable. |
 
-| Modo | Mapa `_n` | Mapa `_s` | Caso de uso |
-| --- | --- | --- | --- |
-| **Glossy plano** | Normal neutra `128,128,255,255`; sin relieve, altura ni parallax. | `255,255,0,255`: suavidad máxima, reflexión basada en albedo, sin porosidad y emisión desactivada. | Reflejo liso uniforme, vidrio pulido o acabado espejo. |
-| **PBR normal** | Normal local derivada de la luminancia con profundidad graduable. | Suavidad, F0, porosidad y emisión según el material. | Una primera interpretación PBR de madera, piedra, metal y otros materiales. |
+Cada textura se convierte con los siguientes valores LABPBR:
 
-Las familias de material disponibles para el flujo individual son madera, piedra, metal, cristal, vegetal, orgánico, suelo y emisivo. La interfaz permite variar F0, suavidad, profundidad y emisión antes de exportar.
+| Mapa | Canales RGBA | Resultado |
+| --- | --- | --- |
+| `_n` | `128,128,255,255` | Normal completamente neutra: sin relieve, altura, parallax ni AO material. |
+| `_s` | `255,255,0,255` | Suavidad y F0 máximos, porosidad nula y emisión desactivada. |
 
-## Conversión de archivos completos
+## Rutas que procesa
 
-El modo **Archivo completo** procesa exclusivamente rutas que contienen `textures/block`, `textures/blocks`, `textures/item`, `textures/items` o `textures/entity`. Para cada albedo PNG elegible genera los pares `_n` y `_s` en la misma carpeta, conserva los metadatos `.mcmeta` de animación en los mapas derivados y omite mapas LABPBR ya existentes para no mezclar variantes.
+En ZIP/JAR, el conversor solo genera mapas para PNG ubicados en rutas de `textures/block`, `textures/blocks`, `textures/item`, `textures/items` o `textures/entity`. Conserva los `.mcmeta` de animación en los mapas derivados y no vuelve a procesar archivos LABPBR `_n` o `_s` existentes.
 
-> Las rutas de GUI, fuentes, pantallas, mapas y pinturas quedan fuera de la conversión. En ZIP también se preservan junto con sonidos y demás archivos del pack sin modificación.
+> Las interfaces, fuentes, pantallas, mapas, pinturas y sonidos quedan fuera de la conversión. Un ZIP los conserva sin cambios. La salida que proviene de un JAR solo incluye los assets necesarios para funcionar como resource pack y nunca incluye clases, manifiestos ni firmas del archivo original.
 
-Los ZIP se reempaquetan manteniendo sus archivos originales y añadiendo únicamente los mapas derivados. Los JAR se exportan como **overlay ZIP** que contiene los assets de textura pertinentes y un `pack.mcmeta`; nunca se entrega un JAR ejecutable modificado. Este diseño evita alterar clases, manifiestos o firmas de un mod o del cliente.
+Las imágenes sueltas que no traen una ruta de Minecraft se guardan dentro de `assets/minecraft/textures/block/` en el resource pack resultante. Cuando se cargan desde una carpeta con una ruta `assets/.../textures/...`, el generador intenta conservar esa ruta de asset.
 
-El límite de seguridad local es de **300 MB** por archivo y **20 000** texturas convertibles por ejecución. Si un pack excede alguno de esos límites, conviene dividirlo por mod o namespace y procesar las partes por separado.
+## Uso
 
-## Privacidad y funcionamiento
+### Lote de texturas
 
-El procesamiento usa Canvas 2D y compresión ZIP en el propio navegador. La textura, pack o JAR seleccionado no se sube a una API ni se guarda en un servidor. Las descargas se construyen localmente como PNG, ZIP o overlay ZIP.
+1. En **Texturas**, selecciona o arrastra una o más imágenes PNG, JPG o WebP.
+2. Revisa la muestra inicial; es solo una inspección visual del Glossy que recibirá todo el lote.
+3. Pulsa **Crear resource pack Glossy**.
+4. Descarga el único ZIP generado e instálalo como resource pack.
 
-## Uso rápido
+### Lote de packs y JARs
 
-### Para una textura individual
+1. En **Packs y JARs**, selecciona uno o varios `.zip` y `.jar`.
+2. Pulsa **Convertir archivos a Glossy**. Los archivos se procesan de manera secuencial para no saturar la memoria del navegador.
+3. Descarga el resource pack mostrado junto a cada archivo finalizado.
+4. Para una salida desde JAR, coloca el ZIP generado por encima del mod o cliente original en el orden de resource packs.
 
-1. Abre la página y suelta una textura en **Entrada**.
-2. Elige **Glossy plano** o **PBR normal**, y selecciona la familia de material.
-3. Ajusta reflectividad, profundidad o emisión si lo necesitas.
-4. Descarga `_n` y `_s`, y colócalos junto al albedo original dentro de la misma ruta del resource pack.
+El límite local es de **300 MB** por archivo y **20 000** texturas convertibles por archivo. Si un pack supera el límite, sepáralo por mod o namespace antes de convertirlo.
 
-### Para un resource pack, mod o cliente
+## Privacidad
 
-1. En **Archivo completo**, carga un `.zip` de resource pack o un `.jar` de mod/Minecraft.
-2. Presiona **Convertir a Glossy** y espera el contador local de texturas procesadas.
-3. Descarga el resultado. Para un ZIP, usa el pack Glossy resultante; para un JAR, instala el `*_glossy_overlay.zip` como resource pack por encima del contenido original.
-4. Prueba el resultado con el shader que vayas a utilizar y conserva una copia sin modificar del archivo fuente.
-
-## LABPBR
-
-Los sufijos `_n` y `_s`, así como sus canales, siguen LABPBR 1.3 [1]. En particular, el canal alfa del mapa especular controla emisión: `0` equivale a 0 % de luz emitida y `255` se ignora para desactivar la emisión en materiales no emisivos [1]. Iris reconoce LabPBR como el formato PBR preferido y documenta los sufijos de normal y especular [2].
+Canvas 2D y compresión ZIP se ejecutan directamente en tu navegador. Ninguna textura, pack o JAR se envía a una API ni se almacena en un servidor. Las descargas se crean como ZIP locales.
 
 ## Desarrollo local
 
@@ -62,7 +58,7 @@ pnpm install
 pnpm dev
 ```
 
-La aplicación usa React, TypeScript, Vite y [JSZip](https://github.com/Stuk/jszip) para abrir y reempaquetar archivos en el navegador. El comando `pnpm build` genera el bundle de producción. El script `scripts/export-github-pages.mjs` prepara una versión HTML/CSS/JS estática para GitHub Pages.
+La aplicación usa React, TypeScript, Vite y [JSZip](https://github.com/Stuk/jszip) para leer y crear resource packs localmente. `pnpm build` genera el bundle de producción, y `scripts/export-github-pages.mjs` prepara los archivos estáticos de GitHub Pages.
 
 ## Licencia
 
